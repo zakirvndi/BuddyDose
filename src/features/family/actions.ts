@@ -59,11 +59,9 @@ export async function joinFamily(
 
   if (!user) return { success: false, error: "Not authenticated" };
 
-  // Check the family exists
+  // Check the family exists via SECURITY DEFINER function (bypasses RLS for non-members)
   const { data: family, error: famErr } = await supabase
-    .from("family_groups")
-    .select("id")
-    .eq("id", familyId)
+    .rpc("get_family_by_id", { family_id: familyId })
     .single();
 
   if (famErr || !family) {
